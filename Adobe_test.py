@@ -597,3 +597,294 @@ Example 2:
 Input: matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
 Output: [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
 """
+def rotate(matrix):
+    n = len(matrix)
+    for i in range(n):
+        for j in range(i, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+    for i in range(n):
+        matrix[i].reverse()
+# Example usage:
+
+matrix = [[1,2,3],[4,5,6],[7,8,9]]
+print("original matrix:", [[1,2,3],[4,5,6],[7,8,9]])
+rotate(matrix)
+print("rotated matrix:")
+for row in matrix:
+    print(row)
+
+"""Given an m x n matrix, return all elements of the matrix in spiral order.
+
+ 
+
+Example 1:
+
+
+Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+Output: [1,2,3,6,9,8,7,4,5]
+Example 2:
+
+
+Input: matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+Output: [1,2,3,4,8,12,11,10,9,5,6,7]
+"""
+def spiralOrder(matrix):
+    if not matrix:
+        return []
+    result = []
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+
+    while top <= bottom and left <= right:
+        for j in range(left, right + 1):
+            result.append(matrix[top][j])
+        top += 1
+
+        for i in range(top, bottom + 1):
+            result.append(matrix[i][right])
+        right -= 1
+
+        if top <= bottom:
+            for j in range(right, left - 1, -1):
+                result.append(matrix[bottom][j])
+            bottom -= 1
+
+        if left <= right:
+            for i in range(bottom, top - 1, -1):
+                result.append(matrix[i][left])
+            left += 1
+
+    return result
+
+# Example usage:
+matrix = [[1,2,3],[4,5,6],[7,8,9]]
+result = spiralOrder(matrix)
+print("spiral order", result)
+
+"""Given a string s, find the first non-repeating character in it and return its index. If it does not exist, return -1.
+
+ 
+
+Example 1:
+
+Input: s = "leetcode"
+
+Output: 0
+
+Explanation:
+
+The character 'l' at index 0 is the first character that does not occur at any other index.
+
+Example 2:
+
+Input: s = "loveleetcode"
+
+Output: 2
+
+Example 3:
+
+Input: s = "aabb"
+
+Output: -1
+
+ 
+
+Constraints:
+
+1 <= s.length <= 105
+s consists of only lowercase English letters."""
+def firstUniqChar(s):
+    char_count = defaultdict(int)
+    print(char_count)
+    for char in s:
+        print(char)
+        char_count[char] += 1
+    for i, char in enumerate(s):
+        if char_count[char] == 1:
+            print(char, char_count[char])
+            return i
+    return -1
+# Example usage:
+s = "leetcode"
+result = firstUniqChar(s)
+print("first unique character index", result)
+
+"""Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".
+
+The testcases will be generated such that the answer is unique.
+
+ 
+
+Example 1:
+
+Input: s = "ADOBECODEBANC", t = "ABC"
+Output: "BANC"
+Explanation: The minimum window substring "BANC" includes 'A', 'B', and 'C' from string t.
+Example 2:
+
+Input: s = "a", t = "a"
+Output: "a"
+Explanation: The entire string s is the minimum window.
+Example 3:
+
+Input: s = "a", t = "aa"
+Output: ""
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string."""
+def minWindow(s, t):
+    if not s or not t:
+        return ""
+
+    dict_t = defaultdict(int)
+    for char in t:
+        dict_t[char] += 1
+
+    required = len(dict_t)
+    l, r = 0, 0
+    formed = 0
+    window_counts = defaultdict(int)
+    ans = float("inf"), None, None
+
+    while r < len(s):
+        character = s[r]
+        window_counts[character] += 1
+
+        if character in dict_t and window_counts[character] == dict_t[character]:
+            formed += 1
+
+        while l <= r and formed == required:
+            character = s[l]
+            if r - l + 1 < ans[0]:
+                ans = (r - l + 1, l, r)
+
+            window_counts[character] -= 1
+            if character in dict_t and window_counts[character] < dict_t[character]:
+                formed -= 1
+
+            l += 1
+
+        r += 1
+
+    return "" if ans[0] == float("inf") else s[ans[1]:ans[2] + 1]
+
+"""You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+
+Merge all the linked-lists into one sorted linked-list and return it.
+
+ 
+
+Example 1:
+
+Input: lists = [[1,4,5],[1,3,4],[2,6]]
+Output: [1,1,2,3,4,4,5,6]
+Explanation: The linked-lists are:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+merging them into one sorted linked list:
+1->1->2->3->4->4->5->6
+Example 2:
+
+Input: lists = []
+Output: []
+Example 3:
+
+Input: lists = [[]]
+Output: []
+ 
+
+Constraints:
+
+k == lists.length
+0 <= k <= 104
+0 <= lists[i].length <= 500
+-104 <= lists[i][j] <= 104
+lists[i] is sorted in ascending order.
+The sum of lists[i].length will not exceed 104."""
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+import heapq
+def mergeKLists(lists):
+    min_heap = []
+    for i in range(len(lists)):
+        if lists[i]:
+            heapq.heappush(min_heap, (lists[i].val, i))
+
+    dummy = ListNode(0)
+    current = dummy
+
+    while min_heap:
+        val, idx = heapq.heappop(min_heap)
+        current.next = ListNode(val)
+        current = current.next
+        if lists[idx].next:
+            lists[idx] = lists[idx].next
+            heapq.heappush(min_heap, (lists[idx].val, idx))
+
+    return dummy.next
+# Example usage:
+lists = [[1,4,5],[1,3,4],[2,6]]
+# Convert lists of integers to linked lists
+linked_lists = []
+for lst in lists:
+    dummy = ListNode(0)
+    current = dummy
+    for num in lst:
+        current.next = ListNode(num)
+        current = current.next
+    linked_lists.append(dummy.next)
+result = mergeKLists(linked_lists)
+# Convert the resulting linked list back to a list of integers for display
+merged_list = []
+while result:
+    merged_list.append(result.val)
+    result = result.next
+print("merged linked list:", merged_list)
+
+"""You are given an m x n binary matrix grid. An island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+The area of an island is the number of cells with a value 1 in the island.
+
+Return the maximum area of an island in grid. If there is no island, return 0.
+
+ 
+
+Example 1:
+
+
+Input: grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Output: 6
+Explanation: The answer is not 11, because the island must be connected 4-directionally.
+Example 2:
+
+Input: grid = [[0,0,0,0,0,0,0,0]]
+Output: 0
+"""
+def maxAreaOfIsland(grid):
+    if not grid:
+        return 0
+
+    max_area = 0
+    rows, cols = len(grid), len(grid[0])
+
+    def dfs(r, c):
+        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:
+            return 0
+        grid[r][c] = 0  # Mark as visited
+        area = 1
+        area += dfs(r + 1, c)
+        area += dfs(r - 1, c)
+        area += dfs(r, c + 1)
+        area += dfs(r, c - 1)
+        return area
+
+    for i in range(rows):
+        for j in range(cols):
+            if grid[i][j] == 1:
+                max_area = max(max_area, dfs(i, j))
+
+    return max_area

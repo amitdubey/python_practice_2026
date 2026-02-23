@@ -888,3 +888,188 @@ def maxAreaOfIsland(grid):
                 max_area = max(max_area, dfs(i, j))
 
     return max_area
+# Example usage:
+grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,
+0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]
+result = maxAreaOfIsland(grid)
+print("max area of island", result)
+
+"""Koko loves to eat bananas. There are n piles of bananas, the ith pile has piles[i] bananas. The guards have gone and will come back in h hours.
+
+Koko can decide her bananas-per-hour eating speed of k. Each hour, she chooses some pile of bananas and eats k bananas from that pile. If the pile has less than k bananas, she eats all of them instead and will not eat any more bananas during this hour.
+
+Koko likes to eat slowly but still wants to finish eating all the bananas before the guards return.
+
+Return the minimum integer k such that she can eat all the bananas within h hours.
+
+ 
+
+Example 1:
+
+Input: piles = [3,6,7,11], h = 8
+Output: 4
+Example 2:
+
+Input: piles = [30,11,23,4,20], h = 5
+Output: 30
+Example 3:
+
+Input: piles = [30,11,23,4,20], h = 6
+Output: 23
+ 
+
+Constraints:
+
+1 <= piles.length <= 104
+piles.length <= h <= 109
+1 <= piles[i] <= 109"""
+def minEatingSpeed(piles, h):
+    left, right = 1, max(piles)
+
+    while left < right:
+        mid = left + (right - left) // 2
+        hours_needed = sum((pile + mid - 1) // mid for pile in piles)
+
+        if hours_needed > h:
+            left = mid + 1
+        else:
+            right = mid
+
+    return left
+# Example usage:
+piles = [3,6,7,11]
+h = 8
+result = minEatingSpeed(piles, h)
+print("minimum eating speed", result)
+
+"""Given a string s representing a valid expression, implement a basic calculator to evaluate it, and return the result of the evaluation.
+
+Note: You are not allowed to use any built-in function which evaluates strings as mathematical expressions, such as eval().
+
+ 
+
+Example 1:
+
+Input: s = "1 + 1"
+Output: 2
+Example 2:
+
+Input: s = " 2-1 + 2 "
+Output: 3
+Example 3:
+
+Input: s = "(1+(4+5+2)-3)+(6+8)"
+Output: 23
+ 
+
+Constraints:
+
+1 <= s.length <= 3 * 105
+s consists of digits, '+', '-', '(', ')', and ' '.
+s represents a valid expression.
+'+' is not used as a unary operation (i.e., "+1" and "+(2 + 3)" is invalid).
+'-' could be used as a unary operation (i.e., "-1" and "-(2 + 3)" is valid).
+There will be no two consecutive operators in the input.
+Every number and running calculation will fit in a signed 32-bit integer."""
+def calculate(s):
+    stack = []
+    current_number = 0
+    current_result = 0
+    sign = 1
+
+    for char in s:
+        if char.isdigit():
+            current_number = current_number * 10 + int(char)
+        elif char in ['+', '-']:
+            current_result += sign * current_number
+            current_number = 0
+            sign = 1 if char == '+' else -1
+        elif char == '(':
+            stack.append(current_result)
+            stack.append(sign)
+            current_result = 0
+            sign = 1
+        elif char == ')':
+            current_result += sign * current_number
+            current_number = 0
+            current_result *= stack.pop()  # sign before the parenthesis
+            current_result += stack.pop()  # result calculated before the parenthesis
+
+    return current_result + (sign * current_number)
+# Example usage:
+s = "(1+(4+5+2)-3)+(6+8)"
+result = calculate(s)
+print("calculated result", result)
+
+"""Given an integer array nums, handle multiple queries of the following types:
+
+Update the value of an element in nums.
+Calculate the sum of the elements of nums between indices left and right inclusive where left <= right.
+Implement the NumArray class:
+
+NumArray(int[] nums) Initializes the object with the integer array nums.
+void update(int index, int val) Updates the value of nums[index] to be val.
+int sumRange(int left, int right) Returns the sum of the elements of nums between indices left and right inclusive (i.e. nums[left] + nums[left + 1] + ... + nums[right]).
+ 
+
+Example 1:
+
+Input
+["NumArray", "sumRange", "update", "sumRange"]
+[[[1, 3, 5]], [0, 2], [1, 2], [0, 2]]
+Output
+[null, 9, null, 8]
+
+Explanation
+NumArray numArray = new NumArray([1, 3, 5]);
+numArray.sumRange(0, 2); // return 1 + 3 + 5 = 9
+numArray.update(1, 2);   // nums = [1, 2, 5]
+numArray.sumRange(0, 2); // return 1 + 2 + 5 = 8"""
+
+class NumArray:
+    def __init__(self, nums):
+        self.nums = nums
+        self.segment_tree = [0] * (4 * len(nums))
+        self.build(0, 0, len(nums) - 1)
+
+    def build(self, node, start, end):
+        if start == end:
+            self.segment_tree[node] = self.nums[start]
+        else:
+            mid = (start + end) // 2
+            self.build(2 * node + 1, start, mid)
+            self.build(2 * node + 2, mid + 1, end)
+            self.segment_tree[node] = self.segment_tree[2 * node + 1] + self.segment_tree[2 * node + 2]
+
+    def update(self, index, val):
+        self._update(0, 0, len(self.nums) - 1, index, val)
+
+    def _update(self, node, start, end, index, val):
+        if start == end:
+            self.segment_tree[node] = val
+            self.nums[index] = val
+        else:
+            mid = (start + end) // 2
+            if index <= mid:
+                self._update(2 * node + 1, start, mid, index, val)
+            else:
+                self._update(2 * node + 2, mid + 1, end, index, val)
+            self.segment_tree[node] = self.segment_tree[2 * node + 1] + self.segment_tree[2 * node + 2]
+
+    def sumRange(self, left, right):
+        return self._sumRange(0, 0, len(self.nums) - 1, left, right)
+
+    def _sumRange(self, node, start, end, left, right):
+        if right < start or left > end:
+            return 0
+        if left <= start and end <= right:
+            return self.segment_tree[node]
+        mid = (start + end) // 2
+        sum_left = self._sumRange(2 * node + 1, start, mid, left, right)
+        sum_right = self._sumRange(2 * node + 2, mid + 1, end, left, right)
+        return sum_left + sum_right
+# Example usage:
+numArray = NumArray([1, 3, 5])
+print(numArray.sumRange(0, 2))  # Output: 9
+numArray.update(1, 2)   # nums = [1, 2, 5]
+print(numArray.sumRange(0, 2))  # Output: 8
